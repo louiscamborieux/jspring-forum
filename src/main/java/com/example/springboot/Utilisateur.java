@@ -1,6 +1,9 @@
 package com.example.springboot;
 
 import javax.persistence.*;
+import java.util.List;
+
+import org.hibernate.mapping.Collection;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Utilisateur {
@@ -11,6 +14,8 @@ public class Utilisateur {
   private String name;
 
   private String email;
+
+  private String role;
 
   public Integer getId() {
     return id;
@@ -32,7 +37,18 @@ public class Utilisateur {
     return email;
   }
 
+  public void setRole(String role) {
+    this.role = role;
+  }
+
+    public String getRole() {
+    return role; 
+  }
+
   public void setEmail(String email) {
     this.email = email;
   }
+
+  @OneToMany (mappedBy = "auteur")
+  private List<Post> posts;
 }
