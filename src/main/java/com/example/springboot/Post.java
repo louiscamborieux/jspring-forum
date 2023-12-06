@@ -1,5 +1,7 @@
 package com.example.springboot;
 
+import java.util.List;
+
 import javax.persistence.*;
 
 @Entity // This tells Hibernate to make a table out of this class
@@ -51,4 +53,12 @@ public class Post {
     return auteur;
   }
 
+  @OneToMany (mappedBy = "post")
+  private List<Jaime> aimes;
+
+
+  @OneToMany (mappedBy = "post")
+  private List<JaimePas> aimentPas;
+    
 }
+

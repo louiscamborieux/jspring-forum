@@ -49,6 +49,11 @@ public class Utilisateur {
     this.email = email;
   }
 
-  @OneToMany (mappedBy = "auteur")
-  private List<Post> posts;
+  @OneToMany (mappedBy = "post")
+  private List<Jaime> aimes;
+
+
+  @OneToMany (mappedBy = "post")
+  private List<JaimePas> aimentPas;
+
 }
