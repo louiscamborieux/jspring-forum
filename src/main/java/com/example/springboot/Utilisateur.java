@@ -9,6 +9,8 @@ import org.hibernate.mapping.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Utilisateur implements UserDetails {
@@ -55,7 +57,13 @@ public class Utilisateur implements UserDetails {
     this.email = email;
   }
 
+  @Column(name ="password")
   private String password;
+
+  public void setPassword(String password) {
+    PasswordEncoder encodeur = new BCryptPasswordEncoder(12);
+    this.password = encodeur.encode(password);
+  }
 
   public String getPassword() {
     return password;

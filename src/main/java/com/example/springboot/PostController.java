@@ -27,6 +27,10 @@ public class PostController {
   @Autowired
   private UserRepository utilisateurRepository;
 
+  @Autowired
+  private AuthenticationUtils authenticationUtils;
+
+
   @PostMapping(path="/add") // Map ONLY POST Requests
   public ResponseEntity<?> createPost (@RequestBody PostRequest postRequest) {
     // @ResponseBody means the returned String is the response, not a view name
@@ -95,12 +99,18 @@ public class PostController {
       if (!opPost.isPresent()) {
             return new ResponseEntity<>("Post introuvable",HttpStatus.NOT_FOUND);
       }
+      Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
+
+      if (utilisateurAuthentifie !=null ) {
+        Post post = opPost.get();
+        return ResponseEntity.ok(post);
+      }
+      else {
+            return new ResponseEntity<>("non",HttpStatus.NOT_FOUND);
+      }
 
 
-      Post post = opPost.get();
-      int nbLikes = post.nbAime();
-      int nbDislikes = post.nbJaimePas();
-      return ResponseEntity.ok(post);
+      
   }
 
   @DeleteMapping("/{id}")
