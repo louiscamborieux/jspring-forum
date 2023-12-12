@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path="/post")
-public class JaimeController {
-        
-    @Autowired
-    private JaimePasRepository jaimePasRepository;
+public class JaimePasController {
     
     @Autowired
-    private JaimeRepository repository;
+    private JaimePasRepository repository;
+
+    @Autowired
+    private JaimeRepository jaimeRepository;
     
     @Autowired  // Ajout de l'annotation Autowired ici
     private PostRepository postRepository;
@@ -36,12 +36,12 @@ public class JaimeController {
     @Autowired  // Ajout de l'annotation Autowired ici
     private UserRepository utilisateurRepository;
 
-    @PostMapping("/{postId}/like")
+    @PostMapping("/{postId}/dislike")
     public ResponseEntity<String> createJaime(@PathVariable Integer postId, @RequestBody PostRequest postRequest) {
         Optional<Post> opPost = postRepository.findById(postId);
 
         if (!opPost.isPresent()) {
-            return new ResponseEntity<>("Post non trouvé",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("non",HttpStatus.NOT_FOUND);
         }
 
         Optional<Utilisateur> opUser = utilisateurRepository.findById(postRequest.getAuteur());
@@ -50,25 +50,24 @@ public class JaimeController {
         }
         Utilisateur user = opUser.get();
         Post post = opPost.get();
-
-        Optional<JaimePas> opJaimePas = jaimePasRepository.findByUtilisateurAndPost(user, post);
-        if (opJaimePas.isPresent()) {
-            jaimePasRepository.delete(opJaimePas.get());
+        Optional<Jaime> opJaime = jaimeRepository.findByUtilisateurAndPost(user, post);
+        if (opJaime.isPresent()) {
+            jaimeRepository.delete(opJaime.get());
         }
 
-        Optional<Jaime> opJaime = repository.findByUtilisateurAndPost(user, post);
-        if (!opJaime.isPresent()) {
-            Jaime reaction = new Jaime();
+        Optional<JaimePas> opJaimePas = repository.findByUtilisateurAndPost(user, post);
+        if (!opJaimePas.isPresent()) {
+            JaimePas reaction = new JaimePas();
             reaction.setPost(post);
             reaction.setUtilisateur(user);
             repository.save(reaction);
-            return new ResponseEntity<>("Aimé",HttpStatus.ACCEPTED);
+            return new ResponseEntity<>("Vous n'aimez pas ce post",HttpStatus.ACCEPTED);
         } else {
-            return new ResponseEntity<>("vous avez déjà aimé ce post",HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("vous avez déjà disliké ce post",HttpStatus.FORBIDDEN);
         }
     }
 
-    @GetMapping("/{postId}/likes")
+    @GetMapping("/{postId}/dislikes")
     public ResponseEntity <List<Utilisateur>> getWhoLikedPost(@PathVariable Integer postId) {
         
         Optional<Post> opPost = postRepository.findById(postId);
@@ -79,10 +78,10 @@ public class JaimeController {
 
     Post post = opPost.get();
 
-    List<Jaime> likes = repository.findByPost(post);
+    List<JaimePas> likes = repository.findByPost(post);
 
     List<Utilisateur> usersWhoLikedPost = likes.stream()
-            .map(Jaime::getUtilisateur)
+            .map(JaimePas::getUtilisateur)
             .collect(Collectors.toList());
 
     return new ResponseEntity<>(usersWhoLikedPost, HttpStatus.OK);

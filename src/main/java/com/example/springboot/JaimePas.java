@@ -16,7 +16,7 @@ public class JaimePas {
     this.id = id;
   }
 
-  @ManyToOne (cascade = CascadeType.ALL)
+  @ManyToOne 
   @JoinColumn(name = "id_utilisateur", nullable = false)
   private Utilisateur utilisateur;
 
@@ -28,7 +28,7 @@ public class JaimePas {
     return utilisateur;
   }
 
-  @ManyToOne (cascade = CascadeType.ALL)
+  @ManyToOne 
   @JoinColumn(name = "id_post", nullable = false)
   private Post post;
 

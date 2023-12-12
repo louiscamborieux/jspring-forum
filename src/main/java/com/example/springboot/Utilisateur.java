@@ -49,6 +49,16 @@ public class Utilisateur {
     this.email = email;
   }
 
+  private String password;
+
+  public String getPassword() {
+    return password;
+  }
+
+  public boolean isModerator () {
+    return this.getRole().equals("moderator");
+  }
+
   @OneToMany (mappedBy = "post")
   private List<Jaime> aimes;
 

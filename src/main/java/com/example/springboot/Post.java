@@ -1,8 +1,11 @@
 package com.example.springboot;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Post {
@@ -15,6 +18,9 @@ public class Post {
 
   @Column (nullable = false)
   private String contenu;
+
+  @Column (nullable = false, name="date_post")
+  private LocalDate datePost = LocalDate.now();
 
   public Integer getId() {
     return id;
@@ -40,7 +46,7 @@ public class Post {
     this.contenu = contenu;
   }
 
-  @ManyToOne (cascade = CascadeType.ALL)
+  @ManyToOne ()
   @JoinColumn(name = "id_auteur", nullable = false)
   private Utilisateur auteur;
 
@@ -48,17 +54,32 @@ public class Post {
     this.auteur = auteur;
   }
 
+  public LocalDate getdatePost () {
+    return datePost;
+  }
+
 
   public Utilisateur getAuteur () {
     return auteur;
   }
 
-  @OneToMany (mappedBy = "post")
+  @OneToMany (mappedBy = "post",  cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private List<Jaime> aimes;
 
 
-  @OneToMany (mappedBy = "post")
+  public List<Jaime> getAimes() {
+    return aimes;
+}
+
+
+  @OneToMany (mappedBy = "post",  cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private List<JaimePas> aimentPas;
+
+  public List<JaimePas> getAimentPas() {
+    return aimentPas;
+}
     
 }
 

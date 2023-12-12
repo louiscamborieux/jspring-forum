@@ -16,7 +16,7 @@ public class Jaime {
     this.id = id;
   }
 
-  @ManyToOne (cascade = CascadeType.ALL)
+  @ManyToOne 
   @JoinColumn(name = "id_utilisateur", nullable = false)
   private Utilisateur utilisateur;
 
@@ -28,8 +28,8 @@ public class Jaime {
     return utilisateur;
   }
 
-  @ManyToOne (cascade = CascadeType.ALL)
-  @JoinColumn(name = "id_post", nullable = false, unique=true)
+  @ManyToOne 
+  @JoinColumn(name = "id_post", nullable = false)
   private Post post;
 
   public void setPost (Post post) {
