@@ -56,7 +56,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
         return new ProviderManager(authenticationProvider);
     }
     
-    @Bean
+    
     public UserDetailsService userDetailsService(@Autowired UserDetailsServicesCustom userDetailsService) {
         return userDetailsService;
     }

@@ -16,7 +16,7 @@ public class Utilisateur implements UserDetails {
   @GeneratedValue(strategy=GenerationType.AUTO)
   private Integer id;
 
-  private String name;
+  private String username;
 
   private String email;
 
@@ -32,11 +32,11 @@ public class Utilisateur implements UserDetails {
 
   @Override
   public String getUsername() {
-    return name;
+    return username;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setUsername(String name) {
+    this.username = name;
   }
 
   public String getEmail() {
