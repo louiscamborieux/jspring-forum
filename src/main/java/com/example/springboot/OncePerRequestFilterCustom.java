@@ -21,6 +21,7 @@ public class OncePerRequestFilterCustom extends OncePerRequestFilter {
     private UserDetailsServicesCustom userDetailsService;
 
 
+    @Autowired
     private TokenValidator tokenValidator;
 
 
