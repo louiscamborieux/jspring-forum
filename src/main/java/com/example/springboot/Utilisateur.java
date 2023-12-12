@@ -1,12 +1,17 @@
 package com.example.springboot;
 
 import javax.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.mapping.Collection;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity // This tells Hibernate to make a table out of this class
-public class Utilisateur {
+public class Utilisateur implements UserDetails {
   @Id
   @GeneratedValue(strategy=GenerationType.AUTO)
   private Integer id;
@@ -25,7 +30,8 @@ public class Utilisateur {
     this.id = id;
   }
 
-  public String getName() {
+  @Override
+  public String getUsername() {
     return name;
   }
 
@@ -65,5 +71,40 @@ public class Utilisateur {
 
   @OneToMany (mappedBy = "post")
   private List<JaimePas> aimentPas;
+
+  @Override
+  public java.util.Collection<? extends GrantedAuthority> getAuthorities() {
+    List<GrantedAuthority> authorities = new ArrayList<>();
+    if (isModerator()) {
+      authorities.add(new SimpleGrantedAuthority("moderator"));
+    }
+    else {
+      authorities.add(new SimpleGrantedAuthority("publisher"));
+    }
+
+    return authorities;
+  }
+
+
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+      return true;
+    }
 
 }
