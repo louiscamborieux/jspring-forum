@@ -96,7 +96,10 @@ public class PostController {
             return new ResponseEntity<>("Post introuvable",HttpStatus.NOT_FOUND);
       }
 
+
       Post post = opPost.get();
+      int nbLikes = post.nbAime();
+      int nbDislikes = post.nbJaimePas();
       return ResponseEntity.ok(post);
   }
 

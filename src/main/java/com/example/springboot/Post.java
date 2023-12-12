@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Post {
@@ -64,12 +65,22 @@ public class Post {
   }
 
   @OneToMany (mappedBy = "post",  cascade = CascadeType.REMOVE)
-  @JsonIgnore
+
   private List<Jaime> aimes;
 
-
+  @JsonIgnore
   public List<Jaime> getAimes() {
     return aimes;
+}
+
+@JsonProperty("Nombre de j'aime")
+public int nbAime () {
+  return aimes != null ? aimes.size() : 0;
+}
+
+@JsonProperty("Nombre de je n'aime pas")
+public int nbJaimePas () {
+  return aimentPas != null ? aimentPas.size() : 0;
 }
 
 

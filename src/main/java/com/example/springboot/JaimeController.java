@@ -51,6 +51,10 @@ public class JaimeController {
         Utilisateur user = opUser.get();
         Post post = opPost.get();
 
+        if (user == post.getAuteur()) {
+            return new ResponseEntity<>("Vous ne pouvez pas aimer vos propres posts",HttpStatus.FORBIDDEN);
+        }
+
         Optional<JaimePas> opJaimePas = jaimePasRepository.findByUtilisateurAndPost(user, post);
         if (opJaimePas.isPresent()) {
             jaimePasRepository.delete(opJaimePas.get());
@@ -69,9 +73,22 @@ public class JaimeController {
     }
 
     @GetMapping("/{postId}/likes")
-    public ResponseEntity <List<Utilisateur>> getWhoLikedPost(@PathVariable Integer postId) {
-        
-        Optional<Post> opPost = postRepository.findById(postId);
+    public ResponseEntity <?> getWhoLikedPost(@PathVariable Integer postId, @RequestBody(required= false) PostRequest postRequest) {
+        if (postRequest == null) {
+            throw new IllegalArgumentException("Echec de l'authentification, merci d'envoyer votre id dans le corps de la requete.");
+        }
+
+        Optional<Utilisateur> opUser = utilisateurRepository.findById(postRequest.getAuteur());
+        if (!opUser.isPresent()) {
+            return new ResponseEntity<>("Echec de l'authentification, veuillez entrez un id utilisateur valide.",HttpStatus.NOT_FOUND);
+        }
+
+        Utilisateur user = opUser.get();
+        if (!user.isModerator()) {
+                       return new ResponseEntity<>("Vous n'avez pas l'autorisation de counsulter les likes",HttpStatus.FORBIDDEN); 
+        }
+    
+    Optional<Post> opPost = postRepository.findById(postId);
 
     if (!opPost.isPresent()) {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

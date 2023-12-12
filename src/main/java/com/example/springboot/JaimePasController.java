@@ -50,6 +50,11 @@ public class JaimePasController {
         }
         Utilisateur user = opUser.get();
         Post post = opPost.get();
+
+        if (user == post.getAuteur()) {
+            return new ResponseEntity<>("Vous ne pouvez pas exprimer votre désapprobation à vos propres posts",HttpStatus.FORBIDDEN);
+        }
+
         Optional<Jaime> opJaime = jaimeRepository.findByUtilisateurAndPost(user, post);
         if (opJaime.isPresent()) {
             jaimeRepository.delete(opJaime.get());
@@ -68,7 +73,20 @@ public class JaimePasController {
     }
 
     @GetMapping("/{postId}/dislikes")
-    public ResponseEntity <List<Utilisateur>> getWhoLikedPost(@PathVariable Integer postId) {
+    public ResponseEntity <?> getWhoLikedPost(@PathVariable Integer postId, @RequestBody(required= false) PostRequest postRequest) {
+        if (postRequest == null) {
+            throw new IllegalArgumentException("Echec de l'authentification, merci d'envoyer votre id dans le corps de la requete.");
+        }
+
+        Optional<Utilisateur> opUser = utilisateurRepository.findById(postRequest.getAuteur());
+        if (!opUser.isPresent()) {
+            return new ResponseEntity<>("Echec de l'authentification, veuillez entrez un id utilisateur valide.",HttpStatus.NOT_FOUND);
+        }
+
+        Utilisateur user = opUser.get();
+        if (!user.isModerator()) {
+                       return new ResponseEntity<>("Vous n'avez pas l'autorisation de counsulter les dislikes",HttpStatus.FORBIDDEN); 
+        }
         
         Optional<Post> opPost = postRepository.findById(postId);
 
