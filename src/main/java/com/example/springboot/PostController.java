@@ -26,6 +26,8 @@ public class PostController {
   private PostRepository repository;
   @Autowired
   private UserRepository utilisateurRepository;
+  @Autowired
+  private PostService postService;
 
   @Autowired
   private AuthenticationUtils authenticationUtils;
@@ -87,9 +89,13 @@ public class PostController {
   }
 
   @GetMapping(path="/all")
-  public @ResponseBody Iterable<Post> getAllPosts() {
-    // This returns a JSON or XML with the users
-    return repository.findAll();
+  public @ResponseBody Iterable<?> getAllPosts() {
+    Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
+    if (utilisateurAuthentifie !=null ) {
+        return repository.findAll();
+      }
+
+    return postService.getAllPostsRestreints();
   }
 
   @GetMapping(path="/{id}")
