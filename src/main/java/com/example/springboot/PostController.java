@@ -66,26 +66,23 @@ public class PostController {
       
       String titre = postRequest.getTitre();
       String contenu = postRequest.getContenu();
-      int auteurID = postRequest.getAuteur();
+      Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
       
-      Optional<Post> opPost = repository.findById(id);
+      if (utilisateurAuthentifie == null) {
+        return new ResponseEntity<>("Vous n'êtes pas authentifié",HttpStatus.UNAUTHORIZED);
+      }
 
+      Optional<Post> opPost = repository.findById(id);
       if (!opPost.isPresent()) {
             return new ResponseEntity<>("Post introuvable",HttpStatus.NOT_FOUND);
       }
-
       Post post = opPost.get();
 
-      Optional<Utilisateur> opUser = utilisateurRepository.findById(auteurID);
-      if (!opUser.isPresent()) {
-            return new ResponseEntity<>("Utilisateur introuvable",HttpStatus.NOT_FOUND);
+      if (!post.getAuteur().equals(utilisateurAuthentifie)) {
+      return new ResponseEntity<>("Vous n'êtes pas authentifié en tant que l'auteur",HttpStatus.FORBIDDEN);
       }
 
-      Utilisateur user = opUser.get();
-
-      if (user != post.getAuteur()) {
-        return new ResponseEntity<>("Vous n'êtes pas l'auteur du Post",HttpStatus.FORBIDDEN);
-      }
+      
 
       post.setTitre(titre);
       post.setContenu(contenu);
