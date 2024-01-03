@@ -37,16 +37,22 @@ public class PostController {
   public ResponseEntity<?> createPost (@RequestBody PostRequest postRequest) {
     // @ResponseBody means the returned String is the response, not a view name
     // @RequestParam means it is a parameter from the GET or POST request
+    Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
+    if (utilisateurAuthentifie == null) {
+      return new ResponseEntity<>("Vous n'êtes pas authentifié",HttpStatus.UNAUTHORIZED);
+    }
 
     String titre = postRequest.getTitre();
     String contenu = postRequest.getContenu();
     int auteurID = postRequest.getAuteur();
 
     Optional<Utilisateur> opUser = utilisateurRepository.findById(auteurID);
-    if (!opUser.isPresent()) {
-            return new ResponseEntity<>("auteur non présent",HttpStatus.NOT_FOUND);
+    
+    if (!opUser.isPresent() || auteurID != utilisateurAuthentifie.getId()) {
+      return new ResponseEntity<>("Vous n'êtes pas authentifié en tant que l'auteur",HttpStatus.FORBIDDEN);
     }
     Utilisateur auteur = opUser.get();
+
     Post post = new Post();
     post.setTitre(titre);
     post.setContenu(contenu);

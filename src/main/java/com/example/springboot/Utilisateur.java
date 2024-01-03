@@ -78,6 +78,10 @@ public class Utilisateur implements UserDetails {
     return this.getRole().equals("moderator");
   }
 
+  public boolean equals(Utilisateur user2) {
+    return this.id == user2.id;
+  }
+
   @OneToMany (mappedBy = "post")
   private List<Jaime> aimes;
 
