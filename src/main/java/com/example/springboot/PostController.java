@@ -121,7 +121,6 @@ public class PostController {
   @DeleteMapping("/{id}")
   public ResponseEntity<String> supprimerPost(@PathVariable Integer id) {
       Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
-
       if (utilisateurAuthentifie == null) {
         return new ResponseEntity<>("Vous n'êtes pas authentifié",HttpStatus.UNAUTHORIZED);
       }
@@ -133,7 +132,7 @@ public class PostController {
       Post post = opPost.get();
 
       if (!utilisateurAuthentifie.equals(post.getAuteur()) && !utilisateurAuthentifie.isModerator()) {
-        return new ResponseEntity<>("Vous n'êtes autorisé à supprimmer ce post.",HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>("Vous n'êtes autorisé à supprimer ce post.",HttpStatus.FORBIDDEN);
       }
 
       repository.delete(post);

@@ -30,41 +30,42 @@ public class JaimeController {
     @Autowired
     private JaimeRepository repository;
     
-    @Autowired  // Ajout de l'annotation Autowired ici
+    @Autowired  
     private PostRepository postRepository;
 
-    @Autowired  // Ajout de l'annotation Autowired ici
+    @Autowired  
     private UserRepository utilisateurRepository;
 
-    @PostMapping("/{postId}/like")
-    public ResponseEntity<String> createJaime(@PathVariable Integer postId, @RequestBody PostRequest postRequest) {
-        Optional<Post> opPost = postRepository.findById(postId);
+    @Autowired
+    private AuthenticationUtils authenticationUtils;
 
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<String> createJaime(@PathVariable Integer postId) {
+        Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
+        if (utilisateurAuthentifie == null) {
+          return new ResponseEntity<>("Vous n'êtes pas authentifié",HttpStatus.UNAUTHORIZED);
+        }
+        Optional<Post> opPost = postRepository.findById(postId);
         if (!opPost.isPresent()) {
             return new ResponseEntity<>("Post non trouvé",HttpStatus.NOT_FOUND);
         }
 
-        Optional<Utilisateur> opUser = utilisateurRepository.findById(postRequest.getAuteur());
-        if (!opUser.isPresent()) {
-            return new ResponseEntity<>("utilisateur non enregistré",HttpStatus.NOT_FOUND);
-        }
-        Utilisateur user = opUser.get();
         Post post = opPost.get();
 
-        if (user == post.getAuteur()) {
+        if (utilisateurAuthentifie.equals(post.getAuteur())) {
             return new ResponseEntity<>("Vous ne pouvez pas aimer vos propres posts",HttpStatus.FORBIDDEN);
         }
 
-        Optional<JaimePas> opJaimePas = jaimePasRepository.findByUtilisateurAndPost(user, post);
+        Optional<JaimePas> opJaimePas = jaimePasRepository.findByUtilisateurAndPost(utilisateurAuthentifie, post);
         if (opJaimePas.isPresent()) {
             jaimePasRepository.delete(opJaimePas.get());
         }
 
-        Optional<Jaime> opJaime = repository.findByUtilisateurAndPost(user, post);
+        Optional<Jaime> opJaime = repository.findByUtilisateurAndPost(utilisateurAuthentifie, post);
         if (!opJaime.isPresent()) {
             Jaime reaction = new Jaime();
             reaction.setPost(post);
-            reaction.setUtilisateur(user);
+            reaction.setUtilisateur(utilisateurAuthentifie);
             repository.save(reaction);
             return new ResponseEntity<>("Aimé",HttpStatus.ACCEPTED);
         } else {
@@ -73,36 +74,31 @@ public class JaimeController {
     }
 
     @GetMapping("/{postId}/likes")
-    public ResponseEntity <?> getWhoLikedPost(@PathVariable Integer postId, @RequestBody(required= false) PostRequest postRequest) {
-        if (postRequest == null) {
-            throw new IllegalArgumentException("Echec de l'authentification, merci d'envoyer votre id dans le corps de la requete.");
+    public ResponseEntity <?> getWhoLikedPost(@PathVariable Integer postId) {
+        Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
+        if (utilisateurAuthentifie == null) {
+          return new ResponseEntity<>("Vous n'êtes pas authentifié",HttpStatus.UNAUTHORIZED);
         }
 
-        Optional<Utilisateur> opUser = utilisateurRepository.findById(postRequest.getAuteur());
-        if (!opUser.isPresent()) {
-            return new ResponseEntity<>("Echec de l'authentification, veuillez entrez un id utilisateur valide.",HttpStatus.NOT_FOUND);
-        }
-
-        Utilisateur user = opUser.get();
-        if (!user.isModerator()) {
-                       return new ResponseEntity<>("Vous n'avez pas l'autorisation de counsulter les likes",HttpStatus.FORBIDDEN); 
+        if (!utilisateurAuthentifie.isModerator()) {
+            return new ResponseEntity<>("Vous n'avez pas l'autorisation de consulter les auteurs des likes",HttpStatus.FORBIDDEN); 
         }
     
-    Optional<Post> opPost = postRepository.findById(postId);
+        Optional<Post> opPost = postRepository.findById(postId);
 
-    if (!opPost.isPresent()) {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+        if (!opPost.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-    Post post = opPost.get();
+        Post post = opPost.get();
 
-    List<Jaime> likes = repository.findByPost(post);
+        List<Jaime> likes = repository.findByPost(post);
 
-    List<Utilisateur> usersWhoLikedPost = likes.stream()
-            .map(Jaime::getUtilisateur)
-            .collect(Collectors.toList());
+        List<Utilisateur> usersWhoLikedPost = likes.stream()
+                .map(Jaime::getUtilisateur)
+                .collect(Collectors.toList());
 
-    return new ResponseEntity<>(usersWhoLikedPost, HttpStatus.OK);
+        return new ResponseEntity<>(usersWhoLikedPost, HttpStatus.OK);
 
-    }
+        }
 }
