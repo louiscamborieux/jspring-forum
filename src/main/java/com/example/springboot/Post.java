@@ -91,6 +91,15 @@ public int nbJaimePas () {
   public List<JaimePas> getAimentPas() {
     return aimentPas;
 }
+
+public PostRestreint toRestreint() {
+  PostRestreint postRestreint = new PostRestreint();
+  postRestreint.setAuteur(auteur);
+  postRestreint.setContenu(contenu);
+  postRestreint.setDatePost(datePost);
+
+  return postRestreint;
+}
     
 }
 

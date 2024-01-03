@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity // This tells Hibernate to make a table out of this class
 public class Utilisateur implements UserDetails {
   @Id
@@ -20,6 +22,7 @@ public class Utilisateur implements UserDetails {
 
   private String username;
 
+  @JsonIgnore
   private String email;
 
   private String role;
@@ -57,6 +60,7 @@ public class Utilisateur implements UserDetails {
     this.email = email;
   }
 
+  @JsonIgnore
   @Column(name ="password")
   private String password;
 
@@ -69,6 +73,7 @@ public class Utilisateur implements UserDetails {
     return password;
   }
 
+  @JsonIgnore
   public boolean isModerator () {
     return this.getRole().equals("moderator");
   }
@@ -81,6 +86,7 @@ public class Utilisateur implements UserDetails {
   private List<JaimePas> aimentPas;
 
   @Override
+  @JsonIgnore
   public java.util.Collection<? extends GrantedAuthority> getAuthorities() {
     List<GrantedAuthority> authorities = new ArrayList<>();
     if (isModerator()) {
@@ -96,20 +102,24 @@ public class Utilisateur implements UserDetails {
 
 
   @Override
+  @JsonIgnore
   public boolean isAccountNonExpired() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isAccountNonLocked() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isCredentialsNonExpired() {
     return true;
   }
 
+  @JsonIgnore
   @Override
   public boolean isEnabled() {
       return true;

@@ -101,12 +101,13 @@ public class PostController {
       }
       Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
 
+      Post post = opPost.get();
       if (utilisateurAuthentifie !=null ) {
-        Post post = opPost.get();
         return ResponseEntity.ok(post);
       }
       else {
-            return new ResponseEntity<>("non",HttpStatus.NOT_FOUND);
+            PostRestreint postRestreint = post.toRestreint();
+            return ResponseEntity.ok(postRestreint);
       }
 
 
