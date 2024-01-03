@@ -44,19 +44,14 @@ public class PostController {
 
     String titre = postRequest.getTitre();
     String contenu = postRequest.getContenu();
-    int auteurID = postRequest.getAuteur();
 
-    Optional<Utilisateur> opUser = utilisateurRepository.findById(auteurID);
     
-    if (!opUser.isPresent() || auteurID != utilisateurAuthentifie.getId()) {
-      return new ResponseEntity<>("Vous n'êtes pas authentifié en tant que l'auteur",HttpStatus.FORBIDDEN);
-    }
-    Utilisateur auteur = opUser.get();
+
 
     Post post = new Post();
     post.setTitre(titre);
     post.setContenu(contenu);
-    post.setAuteur(auteur);
+    post.setAuteur(utilisateurAuthentifie);
     repository.save(post);
     return  ResponseEntity.ok(post);
   }
@@ -124,25 +119,20 @@ public class PostController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<String> supprimerPost(@PathVariable Integer id, @RequestBody PostRequest postRequest) {
-      int auteurID = postRequest.getAuteur();
+  public ResponseEntity<String> supprimerPost(@PathVariable Integer id) {
+      Utilisateur utilisateurAuthentifie = authenticationUtils.getUtilisateurAuthentifie();
+
+      if (utilisateurAuthentifie == null) {
+        return new ResponseEntity<>("Vous n'êtes pas authentifié",HttpStatus.UNAUTHORIZED);
+      }
       
       Optional<Post> opPost = repository.findById(id);
-
       if (!opPost.isPresent()) {
             return new ResponseEntity<>("Post introuvable",HttpStatus.NOT_FOUND);
       }
-
       Post post = opPost.get();
 
-      Optional<Utilisateur> opUser = utilisateurRepository.findById(auteurID);
-      if (!opUser.isPresent()) {
-            return new ResponseEntity<>("Utilisateur introuvable",HttpStatus.NOT_FOUND);
-      }
-
-      Utilisateur user = opUser.get();
-
-      if (user != post.getAuteur() && !user.isModerator()) {
+      if (!utilisateurAuthentifie.equals(post.getAuteur()) && !utilisateurAuthentifie.isModerator()) {
         return new ResponseEntity<>("Vous n'êtes autorisé à supprimmer ce post.",HttpStatus.FORBIDDEN);
       }
 
